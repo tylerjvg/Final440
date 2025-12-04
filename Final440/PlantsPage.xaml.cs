@@ -9,14 +9,14 @@ namespace Final440
 {
     public partial class PlantsPage : ContentPage
     {
-        private readonly CollectionView _collectionView;
+        private readonly CollectionView collectionView;
         private List<Plant> _plants = new();
 
         public PlantsPage()
         {
             Title = "Plants";
 
-            _collectionView = new CollectionView
+            collectionView = new CollectionView
             {
                 SelectionMode = SelectionMode.Single,
                 ItemTemplate = new DataTemplate(() =>
@@ -56,10 +56,10 @@ namespace Final440
                 })
             };
 
-            _collectionView.VerticalScrollBarVisibility = ScrollBarVisibility.Never;
-            _collectionView.ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical);
+            collectionView.VerticalScrollBarVisibility = ScrollBarVisibility.Never;
+            collectionView.ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical);
 
-            _collectionView.SelectionChanged += OnSelectionChanged;
+            collectionView.SelectionChanged += OnSelectionChanged;
 
             Content = new ScrollView
             {
@@ -68,7 +68,7 @@ namespace Final440
                     Padding = 10,
                     Children =
                     {
-                        _collectionView
+                        collectionView
                     }
                 }
             };
@@ -85,7 +85,7 @@ namespace Final440
             try
             {
                 _plants = await DatabaseService.GetAllPlantsAsync();
-                _collectionView.ItemsSource = _plants;
+                collectionView.ItemsSource = _plants;
             }
             catch (Exception ex)
             {
@@ -104,7 +104,7 @@ namespace Final440
                 await Navigation.PushAsync(new PlantDetailsPage(selectedPlant));
             }
 
-            _collectionView.SelectedItem = null;
+            collectionView.SelectedItem = null;
         }
     }
 }

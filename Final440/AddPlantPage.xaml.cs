@@ -10,7 +10,17 @@ namespace Final440
     {
         private readonly Entry _nameEntry;
         private readonly Editor _descriptionEditor;
-        private readonly Button _saveButton;
+        private readonly Entry _timeToPlantEntry;
+        private readonly Entry _amountOfWaterEntry;
+        private readonly Entry _amountOfSunlightEntry;
+        private readonly Entry _typeOfDirtEntry;
+        private readonly Entry _typeOfFoodEntry;
+        private readonly Editor _animalsEditor;
+        private readonly Editor _allergiesEditor;
+        private readonly Entry _toxicEntry;
+        private readonly Editor _usesEditor;
+
+        private readonly Button saveButton;
 
         public AddPlantPage()
         {
@@ -27,14 +37,65 @@ namespace Final440
             {
                 Placeholder = "Description",
                 AutoSize = EditorAutoSizeOption.TextChanges,
-                HeightRequest = 100
+                HeightRequest = 80
             };
 
-            _saveButton = new Button
+            _timeToPlantEntry = new Entry
+            {
+                Placeholder = "Time to plant"
+            };
+
+            _amountOfWaterEntry = new Entry
+            {
+                Placeholder = "Amount of water"
+            };
+
+            _amountOfSunlightEntry = new Entry
+            {
+                Placeholder = "Amount of sunlight"
+            };
+
+            _typeOfDirtEntry = new Entry
+            {
+                Placeholder = "Type of dirt/soil"
+            };
+
+            _typeOfFoodEntry = new Entry
+            {
+                Placeholder = "Type of food/fertilizer"
+            };
+
+            _animalsEditor = new Editor
+            {
+                Placeholder = "Animals attracted/repelled",
+                AutoSize = EditorAutoSizeOption.TextChanges,
+                HeightRequest = 80
+            };
+
+            _allergiesEditor = new Editor
+            {
+                Placeholder = "Allergies",
+                AutoSize = EditorAutoSizeOption.TextChanges,
+                HeightRequest = 80
+            };
+
+            _toxicEntry = new Entry
+            {
+                Placeholder = "Toxic?"
+            };
+
+            _usesEditor = new Editor
+            {
+                Placeholder = "Uses of plant",
+                AutoSize = EditorAutoSizeOption.TextChanges,
+                HeightRequest = 80
+            };
+
+            saveButton = new Button
             {
                 Text = "Save"
             };
-            _saveButton.Clicked += async (s, e) => await SaveAsync();
+            saveButton.Clicked += async (s, e) => await SaveAsync();
 
             Content = new ScrollView
             {
@@ -50,9 +111,19 @@ namespace Final440
                             FontSize = 24,
                             HorizontalOptions = LayoutOptions.Center
                         },
+
                         _nameEntry,
                         _descriptionEditor,
-                        _saveButton
+                        _timeToPlantEntry,
+                        _amountOfWaterEntry,
+                        _amountOfSunlightEntry,
+                        _typeOfDirtEntry,
+                        _typeOfFoodEntry,
+                        _animalsEditor,
+                        _allergiesEditor,
+                        _toxicEntry,
+                        _usesEditor,
+                        saveButton
                     }
                 }
             };
@@ -69,7 +140,16 @@ namespace Final440
             var plant = new Plant
             {
                 Name = _nameEntry.Text.Trim(),
-                Description = _descriptionEditor.Text
+                Description = _descriptionEditor.Text,
+                TimeToPlant = _timeToPlantEntry.Text,
+                AmountOfWater = _amountOfWaterEntry.Text,
+                AmountOfSunlight = _amountOfSunlightEntry.Text,
+                TypeOfDirt = _typeOfDirtEntry.Text,
+                TypeOfFood = _typeOfFoodEntry.Text,
+                AnimalsAttractedRepelled = _animalsEditor.Text,
+                Allergies = _allergiesEditor.Text,
+                Toxic = _toxicEntry.Text,
+                UsesOfPlant = _usesEditor.Text
             };
 
             try

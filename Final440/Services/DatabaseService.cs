@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MySqlConnector;
+using Microsoft.Maui.Devices;
 using Final440.Models;
 
 namespace Final440.Services
@@ -112,6 +114,80 @@ namespace Final440.Services
                 9 or 10 or 11 => "fall",
                 _ => "winter"
             };
+        }
+
+        public static async Task<List<MyPlant>> GetMyPlantsAsync()
+        {
+            var myPlants = new List<MyPlant>();
+
+            await using var conn = new MySqlConnection(ConnectionString);
+            await conn.OpenAsync();
+
+            var sql = @"
+                SELECT mp.MyPlantID, mp.PlantID, mp.CustomName,
+                       mp.Instructions, mp.Notes,
+                       p.Name AS PlantName
+                FROM my_plants mp
+                JOIN plants p ON mp.PlantID = p.PlantID
+                ORDER BY mp.MyPlantID;";
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            await using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                myPlants.Add(new MyPlant
+                {
+                    MyPlantID = reader.GetInt32("MyPlantID"),
+                    PlantID = reader.GetInt32("PlantID"),
+                    CustomName = reader["CustomName"] as string,
+                    Instructions = reader["Instructions"] as string,
+                    Notes = reader["Notes"] as string,
+                    PlantName = reader.GetString("PlantName")
+                });
+            }
+
+            return myPlants;
+        }
+
+        public static async Task AddMyPlantAsync(MyPlant myPlant)
+        {
+            await using var conn = new MySqlConnection(ConnectionString);
+            await conn.OpenAsync();
+
+            var sql = @"
+                INSERT INTO my_plants (PlantID, CustomName, Instructions, Notes)
+                VALUES (@PlantID, @CustomName, @Instructions, @Notes);";
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@PlantID", myPlant.PlantID);
+            cmd.Parameters.AddWithValue("@CustomName", (object?)myPlant.CustomName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Instructions", (object?)myPlant.Instructions ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Notes", (object?)myPlant.Notes ?? DBNull.Value);
+
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        public static async Task UpdateMyPlantAsync(MyPlant myPlant)
+        {
+            await using var conn = new MySqlConnection(ConnectionString);
+            await conn.OpenAsync();
+
+            var sql = @"
+                UPDATE my_plants
+                SET CustomName = @CustomName,
+                    Instructions = @Instructions,
+                    Notes = @Notes,
+                    LastUpdated = CURRENT_TIMESTAMP
+                WHERE MyPlantID = @MyPlantID;";
+
+            await using var cmd = new MySqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@MyPlantID", myPlant.MyPlantID);
+            cmd.Parameters.AddWithValue("@CustomName", (object?)myPlant.CustomName ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Instructions", (object?)myPlant.Instructions ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Notes", (object?)myPlant.Notes ?? DBNull.Value);
+
+            await cmd.ExecuteNonQueryAsync();
         }
     }
 }

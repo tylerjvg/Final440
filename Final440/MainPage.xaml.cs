@@ -13,6 +13,8 @@ namespace Final440
         private readonly Image plantOfDayImage;
         private readonly Button plantsButton;
         private readonly Button addPlantButton;
+        private readonly Button myPlantsButton;
+
 
         public MainPage()
         {
@@ -58,6 +60,15 @@ namespace Final440
             {
                 await Navigation.PushAsync(new AddPlantPage());
             };
+            myPlantsButton = new Button
+            {
+                Text = "My Plant Feed"
+            };
+            myPlantsButton.Clicked += async (s, e) =>
+            {
+                await Navigation.PushAsync(new MyPlantsPage());
+            };
+
 
             Content = new ScrollView
             {
@@ -77,7 +88,9 @@ namespace Final440
                         plantOfDayImage,
                         plantOfDayLabel,
                         plantsButton,
-                        addPlantButton
+                        addPlantButton,
+                        myPlantsButton
+
                     }
                 }
             };

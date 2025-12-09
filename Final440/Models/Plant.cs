@@ -32,6 +32,13 @@ namespace Final440.Models
                 return fileName;
             }
         }
+
+        public class PlantOfDayResult
+        {
+            public Plant? Plant { get; set; }
+            public bool IsSeasonal { get; set; }
+        }
+
     }
 
 }

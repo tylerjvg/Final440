@@ -85,8 +85,8 @@ namespace Final440
                             HorizontalOptions = LayoutOptions.Center
                         },
                         weatherLabel,
-                        plantOfDayImage,
                         plantOfDayLabel,
+                        plantOfDayImage,
                         plantsButton,
                         addPlantButton,
                         myPlantsButton
@@ -127,25 +127,33 @@ namespace Final440
             try
             {
                 var allPlants = await DatabaseService.GetAllPlantsAsync();
-                Plant? plant = DatabaseService.PickPlantOfTheDay(allPlants, DateTime.Now);
+                var result = DatabaseService.PickPlantOfTheDay(allPlants, DateTime.Now);
 
-                if (plant == null)
+                if (result.Plant == null)
                 {
-                    plantOfDayLabel.Text = "Plant of the day: none (no plants found).";
+                    plantOfDayLabel.Text = "No plants available.";
                     plantOfDayImage.Source = "placeholder.png";
                     return;
                 }
 
-                plantOfDayLabel.Text = "Plant of the day: " + plant.Name;
+                if (result.IsSeasonal)
+                {
+                    plantOfDayLabel.Text = $"Plant of the day: {result.Plant.Name}";
+                }
+                else
+                {
+                    plantOfDayLabel.Text = $"Nothing to plant today, so here’s a cool plant: {result.Plant.Name}";
+                }
 
-                plantOfDayImage.Source = plant.ImageSource;
+                plantOfDayImage.Source = result.Plant.ImageSource;
             }
             catch (Exception ex)
             {
-                plantOfDayLabel.Text = "Plant of the day error: " + ex.Message;
+                plantOfDayLabel.Text = $"Plant of the day error: {ex.Message}";
                 plantOfDayImage.Source = "placeholder.png";
             }
         }
+
 
     }
 }

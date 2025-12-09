@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Final440.Models;
+using Microsoft.Maui.Devices;
+using MySqlConnector;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MySqlConnector;
-using Microsoft.Maui.Devices;
-using Final440.Models;
+using static Final440.Models.Plant;
 
 namespace Final440.Services
 {
@@ -84,24 +85,28 @@ namespace Final440.Services
             await cmd.ExecuteNonQueryAsync();
         }
 
-        public static Plant? PickPlantOfTheDay(List<Plant> allPlants, DateTime now)
+        public static PlantOfDayResult PickPlantOfTheDay(List<Plant> allPlants, DateTime now)
         {
             if (allPlants == null || allPlants.Count == 0)
-                return null;
+                return new PlantOfDayResult { Plant = null, IsSeasonal = false };
 
             string season = GetSeason(now.Month);
 
             var seasonal = allPlants
-                .Where(p => (p.TimeToPlant ?? string.Empty)
-                    .ToLower()
-                    .Contains(season))
+                .Where(p => (p.TimeToPlant ?? string.Empty).ToLower().Contains(season))
                 .ToList();
 
-            var source = seasonal.Count > 0 ? seasonal : allPlants;
-
+            bool isSeasonal = seasonal.Count > 0;
+            var source = isSeasonal ? seasonal : allPlants;
             var index = (now.DayOfYear - 1) % source.Count;
-            return source[index];
+
+            return new PlantOfDayResult
+            {
+                Plant = source[index],
+                IsSeasonal = isSeasonal
+            };
         }
+
 
         private static string GetSeason(int month)
         {

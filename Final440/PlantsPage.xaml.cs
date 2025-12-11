@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Final440.Models;
 using Final440.Services;
+using Final440.Styles;
 
 namespace Final440
 {
@@ -14,61 +15,93 @@ namespace Final440
 
         public PlantsPage()
         {
+            //InitializeComponent();
+            ThemeApp.StylePage(this);
             Title = "Plants";
+
+            var header = ThemeApp.CreateTitleLabel("All Plants");
+            var sub = ThemeApp.CreateBodyLabel("Browse everything in the database");
 
             collectionView = new CollectionView
             {
-                SelectionMode = SelectionMode.Single,
+                SelectionMode = SelectionMode.None,
                 ItemTemplate = new DataTemplate(() =>
                 {
                     var image = new Image
                     {
                         HeightRequest = 40,
                         WidthRequest = 40,
-                        VerticalOptions = LayoutOptions.Center
+                        VerticalOptions = LayoutOptions.Center,
+                        Aspect = Aspect.AspectFill
                     };
                     image.SetBinding(Image.SourceProperty, "ImageSource");
 
                     var nameLabel = new Label
                     {
                         FontSize = 18,
+                        TextColor = ThemeApp.TextPrimary,
                         VerticalOptions = LayoutOptions.Center
                     };
                     nameLabel.SetBinding(Label.TextProperty, "Name");
 
-                    var grid = new Grid
+                    var rowLayout = new Grid
                     {
                         ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = 50 },
-                            new ColumnDefinition { Width = GridLength.Star }
-                        },
-                        Padding = new Thickness(10, 5)
+            {
+                new ColumnDefinition { Width = 55 },
+                new ColumnDefinition { Width = GridLength.Star }
+            },
+                        ColumnSpacing = 12
                     };
 
-                    grid.Children.Add(image);
-                    grid.Children.Add(nameLabel);
-
+                    rowLayout.Children.Add(image);
+                    rowLayout.Children.Add(nameLabel);
                     Grid.SetColumn(image, 0);
                     Grid.SetColumn(nameLabel, 1);
 
-                    return grid;
-                })
+                    var frame = new Frame
+                    {
+                        BackgroundColor = ThemeApp.CardBackground,
+                        CornerRadius = 12,
+                        HasShadow = false,
+                        BorderColor = ThemeApp.BorderSoft,
+                        Padding = new Thickness(10, 6),
+                        Margin = new Thickness(10, 4, 10, 4),
+                        Content = rowLayout
+                    };
+
+                    var tap = new TapGestureRecognizer();
+                    tap.Tapped += async (s, e) =>
+                    {
+                        if (frame.BindingContext is Plant plant)
+                        {
+                            await Application.Current.MainPage.Navigation
+                                .PushAsync(new PlantDetailsPage(plant));
+                        }
+                    };
+
+                    frame.GestureRecognizers.Add(tap);
+
+                    return frame;
+                }),
+                VerticalOptions = LayoutOptions.FillAndExpand
             };
 
-            collectionView.VerticalScrollBarVisibility = ScrollBarVisibility.Never;
-            collectionView.ItemsLayout = new LinearItemsLayout(ItemsLayoutOrientation.Vertical);
-
             collectionView.SelectionChanged += OnSelectionChanged;
+
+            var listCard = ThemeApp.WrapInCard(collectionView);
 
             Content = new ScrollView
             {
                 Content = new VerticalStackLayout
                 {
-                    Padding = 10,
+                    Padding = 20,
+                    Spacing = 8,
                     Children =
                     {
-                        collectionView
+                        header,
+                        sub,
+                        listCard
                     }
                 }
             };

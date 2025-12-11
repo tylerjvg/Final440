@@ -1,8 +1,9 @@
-﻿using Final440.Services;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Final440.Models;
-using System;
-using System.Threading.Tasks;
+using Final440.Services;
+using Final440.Styles;
 
 namespace Final440
 {
@@ -19,78 +20,88 @@ namespace Final440
         public MainPage()
         {
             InitializeComponent();
-
+            ThemeApp.StylePage(this);
             Title = "Home";
+            var header = ThemeApp.CreateTitleLabel("Plant App");
 
-            weatherLabel = new Label
-            {
-                Text = "Loading weather",
-                FontSize = 18,
-                HorizontalOptions = LayoutOptions.Center
-            };
+            weatherLabel = ThemeApp.CreateBodyLabel("Loading weather...");
 
-            plantOfDayLabel = new Label
-            {
-                Text = "Loading Plant of the Day",
-                FontSize = 18,
-                HorizontalOptions = LayoutOptions.Center
-            };
+            plantOfDayLabel = ThemeApp.CreateBodyLabel("Loading Plant of the Day");
 
             plantOfDayImage = new Image
             {
                 HeightRequest = 120,
                 WidthRequest = 120,
-                HorizontalOptions = LayoutOptions.Center
+                Aspect = Aspect.AspectFill,
+                HorizontalOptions = LayoutOptions.Center,
+                Margin = new Thickness(0, 8)
             };
 
-            plantsButton = new Button
-            {
-                Text = "View Plants"
-            };
+            plantsButton = ThemeApp.CreatePrimaryButton("Browse All Plants");
             plantsButton.Clicked += async (s, e) =>
             {
                 await Navigation.PushAsync(new PlantsPage());
             };
 
-            addPlantButton = new Button
-            {
-                Text = "Add New Plant"
-            };
+            addPlantButton = ThemeApp.CreateSecondaryButton("Add New Plant");
             addPlantButton.Clicked += async (s, e) =>
             {
                 await Navigation.PushAsync(new AddPlantPage());
             };
-            myPlantsButton = new Button
-            {
-                Text = "My Plant Feed"
-            };
+            myPlantsButton = ThemeApp.CreateSecondaryButton("My Plant Feed");
+            myPlantsButton.BackgroundColor = ThemeApp.AccentBlue;
+            myPlantsButton.TextColor = Colors.White;
+            myPlantsButton.BorderWidth = 0;
             myPlantsButton.Clicked += async (s, e) =>
             {
                 await Navigation.PushAsync(new MyPlantsPage());
             };
+            var weatherCard = ThemeApp.WrapInCard(
+                            new VerticalStackLayout
+                            {
+                                Spacing = 4,
+                                Children =
+                                {
+                        ThemeApp.CreateSectionHeader("Today’s Weather"),
+                        weatherLabel
+                                }
+                            });
 
+            var plantCard = ThemeApp.WrapInCard(
+                new VerticalStackLayout
+                {
+                    Spacing = 6,
+                    Children =
+                    {
+                        ThemeApp.CreateSectionHeader("Plant of the Day"),
+                        plantOfDayLabel,
+                        plantOfDayImage
+                    }
+                });
+
+            var buttonsCard = ThemeApp.WrapInCard(
+                new VerticalStackLayout
+                {
+                    Spacing = 8,
+                    Children =
+                    {
+                        plantsButton,
+                        addPlantButton,
+                        myPlantsButton
+                    }
+                });
 
             Content = new ScrollView
             {
                 Content = new VerticalStackLayout
                 {
-                    Padding = 20,
-                    Spacing = 20,
+                    Padding = new Thickness(20, 20),
+                    Spacing = 12,
                     Children =
                     {
-                        new Label
-                        {
-                            Text = "Plant App",
-                            FontSize = 26,
-                            HorizontalOptions = LayoutOptions.Center
-                        },
-                        weatherLabel,
-                        plantOfDayLabel,
-                        plantOfDayImage,
-                        plantsButton,
-                        addPlantButton,
-                        myPlantsButton
-
+                        weatherCard,
+                        plantCard,
+                        buttonsCard
                     }
                 }
             };

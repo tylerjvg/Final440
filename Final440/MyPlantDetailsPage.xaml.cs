@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Final440.Models;
 using Final440.Services;
+using Final440.Styles; 
 
 namespace Final440
 {
@@ -9,58 +10,72 @@ namespace Final440
     {
         private readonly MyPlant _myPlant;
 
-        private readonly Label titleLabel;
-        private readonly Editor instructionsEditor;
-        private readonly Editor notesEditor;
-        private readonly Button saveButton;
+        private readonly Label _titleLabel;
+        private readonly Editor _instructionsEditor;
+        private readonly Editor _notesEditor;
+        private readonly Button _saveButton;
 
         public MyPlantDetailsPage(MyPlant myPlant)
         {
-            _myPlant = myPlant;
+            //InitializeComponent();
+            ThemeApp.StylePage(this);
 
+            _myPlant = myPlant;
             Title = myPlant.DisplayName;
 
-            titleLabel = new Label
-            {
-                Text = $"{myPlant.DisplayName} ({myPlant.PlantName})",
-                FontSize = 22,
-                HorizontalOptions = LayoutOptions.Center
-            };
+            _titleLabel = ThemeApp.CreateTitleLabel($"{myPlant.DisplayName}");
+            var subtitle = ThemeApp.CreateBodyLabel($"Base plant: {myPlant.PlantName}");
 
-            instructionsEditor = new Editor
+            _instructionsEditor = new Editor
             {
                 Text = myPlant.Instructions,
                 AutoSize = EditorAutoSizeOption.TextChanges,
                 HeightRequest = 100
             };
 
-            notesEditor = new Editor
+            _notesEditor = new Editor
             {
                 Text = myPlant.Notes,
                 AutoSize = EditorAutoSizeOption.TextChanges,
                 HeightRequest = 150
             };
 
-            saveButton = new Button
+            _saveButton = ThemeApp.CreatePrimaryButton("Save Notes");
+            _saveButton.Clicked += async (s, e) => await SaveAsync();
+
+            var instructionsStack = new VerticalStackLayout
             {
-                Text = "Save Notes"
+                Spacing = 4,
+                Children =
+                {
+                    ThemeApp.CreateSectionHeader("Instructions"),
+                    _instructionsEditor
+                }
             };
-            saveButton.Clicked += async (s, e) => await SaveAsync();
+
+            var notesStack = new VerticalStackLayout
+            {
+                Spacing = 4,
+                Children =
+                {
+                    ThemeApp.CreateSectionHeader("Notes / Progress"),
+                    _notesEditor
+                }
+            };
 
             Content = new ScrollView
             {
                 Content = new VerticalStackLayout
                 {
                     Padding = 20,
-                    Spacing = 12,
+                    Spacing = 10,
                     Children =
                     {
-                        titleLabel,
-                        new Label { Text = "Instructions:" },
-                        instructionsEditor,
-                        new Label { Text = "Notes / Progress:" },
-                        notesEditor,
-                        saveButton
+                        _titleLabel,
+                        subtitle,
+                        ThemeApp.WrapInCard(instructionsStack),
+                        ThemeApp.WrapInCard(notesStack),
+                        _saveButton
                     }
                 }
             };
@@ -68,15 +83,15 @@ namespace Final440
 
         private async Task SaveAsync()
         {
-            _myPlant.Instructions = instructionsEditor.Text;
-            _myPlant.Notes = notesEditor.Text;
+            _myPlant.Instructions = _instructionsEditor.Text;
+            _myPlant.Notes = _notesEditor.Text;
 
             try
             {
                 await DatabaseService.UpdateMyPlantAsync(_myPlant);
                 await DisplayAlert("Saved", "Your notes were saved.", "OK");
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 await DisplayAlert("Error", "Could not save: " + ex.Message, "OK");
             }

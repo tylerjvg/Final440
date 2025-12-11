@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Final440.Models;
 using Final440.Services;
+using Final440.Styles; 
 
 namespace Final440
 {
@@ -20,17 +21,21 @@ namespace Final440
         private readonly Entry _toxicEntry;
         private readonly Editor _usesEditor;
 
-        private readonly Button saveButton;
+        private readonly Button _saveButton;
 
         public AddPlantPage()
         {
             //InitializeComponent();
 
+            ThemeApp.StylePage(this);
             Title = "Add Plant";
+
+            var titleLabel = ThemeApp.CreateTitleLabel("Add a New Plant");
+            var subtitleLabel = ThemeApp.CreateBodyLabel("Fill in the plant details and save");
 
             _nameEntry = new Entry
             {
-                Placeholder = "Name"
+                Placeholder = "Name (required)"
             };
 
             _descriptionEditor = new Editor
@@ -42,12 +47,12 @@ namespace Final440
 
             _timeToPlantEntry = new Entry
             {
-                Placeholder = "Time to plant"
+                Placeholder = "Time to plant "
             };
 
             _amountOfWaterEntry = new Entry
             {
-                Placeholder = "Amount of water"
+                Placeholder = "Amount of water "
             };
 
             _amountOfSunlightEntry = new Entry
@@ -91,39 +96,46 @@ namespace Final440
                 HeightRequest = 80
             };
 
-            saveButton = new Button
+            _saveButton = ThemeApp.CreatePrimaryButton("Save Plant");
+            _saveButton.Clicked += async (s, e) => await SaveAsync();
+
+            var formStack = new VerticalStackLayout
             {
-                Text = "Save"
+                Spacing = 8,
+                Children =
+                {
+                    ThemeApp.CreateSectionHeader("Basic Info"),
+                    _nameEntry,
+                    _descriptionEditor,
+
+                    ThemeApp.CreateSectionHeader("Planting & Care"),
+                    _timeToPlantEntry,
+                    _amountOfWaterEntry,
+                    _amountOfSunlightEntry,
+                    _typeOfDirtEntry,
+                    _typeOfFoodEntry,
+
+                    ThemeApp.CreateSectionHeader("Other Details"),
+                    _animalsEditor,
+                    _allergiesEditor,
+                    _toxicEntry,
+                    _usesEditor,
+
+                    _saveButton
+                }
             };
-            saveButton.Clicked += async (s, e) => await SaveAsync();
 
             Content = new ScrollView
             {
                 Content = new VerticalStackLayout
                 {
                     Padding = 20,
-                    Spacing = 12,
+                    Spacing = 10,
                     Children =
                     {
-                        new Label
-                        {
-                            Text = "New Plant",
-                            FontSize = 24,
-                            HorizontalOptions = LayoutOptions.Center
-                        },
-
-                        _nameEntry,
-                        _descriptionEditor,
-                        _timeToPlantEntry,
-                        _amountOfWaterEntry,
-                        _amountOfSunlightEntry,
-                        _typeOfDirtEntry,
-                        _typeOfFoodEntry,
-                        _animalsEditor,
-                        _allergiesEditor,
-                        _toxicEntry,
-                        _usesEditor,
-                        saveButton
+                        titleLabel,
+                        subtitleLabel,
+                        ThemeApp.WrapInCard(formStack)
                     }
                 }
             };
